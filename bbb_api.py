@@ -241,7 +241,6 @@ def createMeeting( username, meetingID, welcomeString, mPW, aPW, SALT, URL, logo
 def getMeetingInfo( meetingID, modPW, URL, SALT ):
     getMeetingInfo_url = getMeetingInfoURL(meetingID, modPW, URL, SALT )
     xml = bbb_wrap_load_file( getMeetingInfo_url )
-
     attendeeKey = 0
     if(xml):
         mapping = {}
@@ -326,6 +325,12 @@ def getMeetings( URL, SALT ):
                                 meeting[mtg.tagName] = mtg.firstChild.nodeValue
                             else:
                                 meeting[mtg.tagName] = None
+
+                        #Adds meeting info to meetings
+                        meetingInfo = getMeetingInfo(meeting.get('meetingID'), meeting.get('moderatorPW'), URL, SALT)
+                        for k,v in meetingInfo.items():
+                            meeting[k] = v
+
                         #Updates the meetings dictionary with the meeting we just parsed
                         meetings[safe_str(meetingKey)] = meeting
                         meetingKey += 1

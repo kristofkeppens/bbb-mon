@@ -37,12 +37,12 @@ def info_limits(string):
 def parse_args():
     parser = argparse.ArgumentParser(description = "Fetches information from a BigBlueButton server")
     parser.add_argument("--host",
-        required = True,
+        required = False,
         help = "the BigBlueButton full HOST address. Format: http://192.168.0.101:8080/bigbluebutton",
         dest = "host",
         metavar = "<HOST>")
     parser.add_argument("--salt",
-        required = True,
+        required = False,
         help = "the SALT of your BigBlueButton server",
         dest = "salt",
         metavar = "<salt>")
@@ -104,14 +104,14 @@ def main():
         config = SafeConfigParser()
         config.read('config.ini')
 
-        if config.has_option('connection', 'host')
+        if config.has_option('connection', 'host'):
             url = urlparse(config.get('connection', 'host'))
-        else
+        else:
             url = urlparse(args.host)
 
-        if config.has_option('connection', 'salt')
+        if config.has_option('connection', 'salt'):
             salt = config.get('connection', 'salt')
-        else
+        else:
             salt = args.salt
 
         results = bigbluebutton_info.fetch(url.hostname, url.port, salt)
