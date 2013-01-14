@@ -6,6 +6,7 @@
 import sys
 import bigbluebutton_info
 import argparse
+from ConfigParser import SafeConfigParser
 from urlparse import urlparse
 
 # Exit statuses recognized by Nagios
@@ -91,7 +92,7 @@ def main():
     0: all ok
     1: entered the WARNING status
     2: entered the CRITICAL status
-    1: couldn't get an anwser from BBB, is at the UNKNOWN status
+    3: couldn't get an anwser from BBB, is at the UNKNOWN status
     """
 
     # args
@@ -99,8 +100,21 @@ def main():
 
     # get the data from BBB
     try:
-        url = urlparse(args.host)
-        results = bigbluebutton_info.fetch(url.hostname, url.port, args.salt)
+         # args from configfile
+        config = SafeConfigParser()
+        config.read('config.ini')
+
+        if config.has_option('connection', 'host')
+            url = urlparse(config.get('connection', 'host'))
+        else
+            url = urlparse(args.host)
+
+        if config.has_option('connection', 'salt')
+            salt = config.get('connection', 'salt')
+        else
+            salt = args.salt
+
+        results = bigbluebutton_info.fetch(url.hostname, url.port, salt)
     except Exception as e:
         sys.stdout.write(str(e))
         sys.exit((UNKNOWN))
