@@ -38,11 +38,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description = "Fetches information from a BigBlueButton server")
     parser.add_argument("--host",
         required = False,
+        default = "http://localhost",
         help = "the BigBlueButton full HOST address. Format: http://192.168.0.101:8080/bigbluebutton",
         dest = "host",
         metavar = "<HOST>")
     parser.add_argument("--salt",
         required = False,
+        default = 'secret',
         help = "the SALT of your BigBlueButton server",
         dest = "salt",
         metavar = "<salt>")
@@ -52,6 +54,11 @@ def parse_args():
         help = "the LIMITS for the service to enter CRITICAL and WARNING status. Format: \"meetings,users,audios,videos:meetings,users,audios,videos\", the first set for the CRITICAL status and the second for the WARNING",
         dest = "limits",
         metavar = "<limits>")
+    parser.add_argument("--config",
+        default = "/etc/bbb-mon.ini",
+        help = "enter an alternative location for the config file",
+        dest = "config",
+        metavar = "<config>")
     return parser.parse_args()
 
 # Check the service status using the limits informed by the user and the results from BBB
@@ -100,9 +107,14 @@ def main():
 
     # get the data from BBB
     try:
-         # args from configfile
-        config = SafeConfigParser()
-        config.read('config.ini')
+        # args from configfile
+        try:
+            config = SafeConfigParser()
+            config.read(args.config)
+#            import pdb; pdb.set_trace()
+        except SafeConfigParser.ParsingError, err:
+            print 'Could not parse config:', err
+
 
         if config.has_option('connection', 'host'):
             url = urlparse(config.get('connection', 'host'))
@@ -114,6 +126,11 @@ def main():
         else:
             salt = args.salt
 
+        if config.has_option('connection', 'limits'):
+            limits = config.get('connection', 'limits')
+        else:
+            limits = args.limits
+
         results = bigbluebutton_info.fetch(url.hostname, url.port, salt)
     except Exception as e:
         sys.stdout.write(str(e))
@@ -121,7 +138,7 @@ def main():
 
     # output
     sys.stdout.write(get_output_message(results, args.limits))
-    sys.exit((get_status(results.limits(), args.limits)))
+    sys.exit((get_status(results.limits(), limits)))
 
 if __name__ == '__main__':
     main()
