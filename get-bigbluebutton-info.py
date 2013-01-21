@@ -127,7 +127,7 @@ def main():
             salt = args.salt
 
         if config.has_option('connection', 'limits'):
-            limits = config.get('connection', 'limits')
+            limits = info_limits(config.get('connection', 'limits'))
         else:
             limits = args.limits
 
@@ -137,7 +137,7 @@ def main():
         sys.exit((UNKNOWN))
 
     # output
-    sys.stdout.write(get_output_message(results, args.limits))
+    sys.stdout.write(get_output_message(results, limits))
     sys.exit((get_status(results.limits(), limits)))
 
 if __name__ == '__main__':
